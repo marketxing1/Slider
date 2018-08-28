@@ -1,0 +1,17 @@
+* {
+  box-sizing: border-box;
+  padding: 0;
+  maigin: 0; }
+
+html, body {
+  width: 100%;
+  height: 100%; }
+
+.Slider_vessel {
+  box-shadow: 0 0 20px 1px black;
+  width: 600px;
+  height: 300px;
+  border: 1px solid black;
+  margin: auto; }
+
+/*# sourceMappingURL=Slider.css.map */
