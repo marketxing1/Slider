@@ -1,4 +1,4 @@
-let imges_data = [{     //图片数据,数据来源。。。。。。
+let imges_data = [{     //图片数据,数据来源视情况而定
   1:["./picture/1-1.jpg","https://www.zhihu.com/"],
   2:["./picture/1-2.jpg","https://www.google.com/"],
   3:["./picture/1-3.jpg","https://www.baidu.com/"],
@@ -57,11 +57,11 @@ let Slider_default_data = {  //默认配置项
   "arrows":true,             //左右或上下箭头(视动画方式而定)
   "can_jump":true,           //图片可以点击跳转
   "play_direction":1,        //播放方向,默认从左到右，1为水平(视动画方式而定)
-  "animation_way":1          //动画方式(淡入淡出、百叶窗、飞入、放大缩小替换等等)
+  "animation_way":1          //动画方式
   //...........
 }
 
-let Slider_data = { //单个Slider属性配置,这里举例第一个
+let Slider_data = { //单个Slider属性配置
   1:{"index":true,"animation_time": 1000,"animation_timer": 1000,},
   2:{"index":true,"animation_timer": 2000,},
   3:{"index":true},
@@ -71,12 +71,13 @@ let Slider_data = { //单个Slider属性配置,这里举例第一个
   7:{"index":true}         
   //.........
 }
+
 let nodes = document.querySelectorAll("div[class*=Slider_vessel]") //Slider集合
 let Slider_datas = [] //Slider配置项数组，[{},{},{}]形式 
 let status = []  //动画状态数组，用于控制对应Slider动画控制,[{},{},{}]形式  
 
 
-for (let i = 1; i <= nodes.length; i++) {
+for (let i = 1; i <= nodes.length; i++) { //创建配置项Slider_datas集合
   let temporary_data = {}
   for (let data in Slider_default_data) {
     if (Slider_data[i] !== undefined && Slider_data[i][data] !== undefined) temporary_data[data] = Slider_data[i][data]
@@ -88,52 +89,55 @@ for (let i = 1; i <= nodes.length; i++) {
 
 
 
-class Slider{
+class Slider{       //Slider图片容器构造函数
   constructor(val){
-    let img_data = imges_data[val - 1]
-    let len = Object.keys(img_data).length
-    this.ves = document.createElement('div')
+    let img_data = imges_data[val - 1]        //获取slider对应图片数据
+    let len = Object.keys(img_data).length    //获取slider长度
+    this.ves = document.createElement('div')  //创建容器
     this.ves.className = "vessel"
     this.ves.len = len
     this.ves.width = len * nodes[val - 1].offsetWidth
     this.ves.style.width = this.ves.width + "px"
-    for (let i = 1; i <= len; i++) {  
+    for (let i = 1; i <= len; i++) {              //图片配置项设置
       let node = document.createElement('a')
       node.setAttribute("style",`background-image:url(${img_data[i][0]});width:${nodes[val - 1].offsetWidth}px`)
       node.setAttribute("href",`${img_data[i][1]}`)
       node.setAttribute("target",`_blank`)
-      this.ves.appendChild(node)
+      this.ves.appendChild(node)              //容器添加图片节点
     }
-    status[val - 1] = {}
-    index_data(this.ves,val - 1) 
-    arrows_data(this.ves,val - 1) 
-    animation_data (this.ves,val - 1)
-    animation(this.ves,val - 1)
-    return this.ves
+    status[val - 1] = {}                      //对应动画属性创建
+    index_data(this.ves,val - 1)              //对应角标创建
+    arrows_data(this.ves,val - 1)             //对应箭头创建
+    animation_data (this.ves,val - 1)         //对应动画属性初始化
+    animation(this.ves,val - 1)               //对应动画创建
+    return this.ves                           //返回容器节点
   }
 }
 
-document.addEventListener('DOMContentLoaded',() => {
-  nodes.forEach((node,index) => {
+document.addEventListener('DOMContentLoaded',() => {   //DOM元素加载监听
+  nodes.forEach((node,index) => {                      //遍历Slider节点
     if (index === imges_data.length) {
       throw new Error("图片数据缺少(少于Slider数量)")
     }
-    let str = /\-([0-9]+)$/.exec(node.className)[1]
-    node.appendChild(new Slider(str - 0))
-    node.addEventListener("mouseenter",() => {
-      for (let val in status[index]) {
+    let str = /\-([0-9]+)$/.exec(node.className)[1]    //获取Slider节点的className的数值
+    node.appendChild(new Slider(str - 0))              //构造函数创建容器节点
+    node.addEventListener("mouseenter",() => {         //监听容器mouseenter事件,清除该容器下所有动画
+      for (let val in status[index]) {                  
         clearInterval(status[index][val])
       }
     })
-    node.addEventListener("mouseleave",() => {
+    node.addEventListener("mouseleave",() => {         //监听容器mouseleave事件,定时器后开始重新执行动画
       animation(node.querySelector("div[class*=vessel]"),index)
     })
   })
 })
 
-
-function animation_data (node,index) {   //各个Slider初始状态处理
-  status[index].imgIndex = 0 //////////////////////////
+/**
+ * animation_data(node,index) 各个Slider初始动画状态处理
+ * @param  {object} node      节点对象
+ * @param  {number} index     节点对象在nodes集合中的下标值
+ */
+function animation_data (node,index) {        
   if (Slider_datas[index].animation_way === 1) {
     node.style.transition = Slider_datas[index].animation_timer / 1000 + "s"
     status[index].translateX = 0
@@ -150,7 +154,12 @@ function animation_data (node,index) {   //各个Slider初始状态处理
   }
 }
 
-function index_data(node,index) {   //各个Slider右下角角标创建
+/**
+ * index_data(node,index)   各个Slider右下角角标创建
+ * @param  {object} node    节点对象
+ * @param  {number} index   节点对象在nodes集合中的下标值
+ */
+function index_data(node,index) {   
   if (Slider_datas[index].index === true) {
     node.spanIndexEl = []       //Slider图片容器包含的角标数组集合
     let div = document.createElement('div')
@@ -160,7 +169,7 @@ function index_data(node,index) {   //各个Slider右下角角标创建
       span.className = "index"
       span.index = i
       //span.textContent = i + 1 + ""
-      span.onclick = () => {      //span点击  各个动画状态都要重置。。有点乱后面改
+      span.onclick = () => {      //span点击  各个动画状态都要重置
         status[index].translateX = -(node.width / node.len * span.index)
         node.style.transform = `translateX(${status[index].translateX}px)`
         node.spanIndexEl[status[index].spanIndex].removeAttribute("style")
@@ -177,6 +186,12 @@ function index_data(node,index) {   //各个Slider右下角角标创建
   }
 }
 
+
+/**
+ * arrows_data(node,index)  各个Slider箭头创建
+ * @param  {object} node    节点对象
+ * @param  {number} index   节点对象在nodes集合中的下标值
+ */
 function arrows_data(node,index) {
   if (Slider_datas[index].arrows === true) {
     node.arrowsEl = []       //Slider图片容器包含的角标数组集合
@@ -235,6 +250,11 @@ function arrows_data(node,index) {
   }
 }
 
+/**
+ * animation(node,index)    动画执行
+ * @param  {object} node    节点对象
+ * @param  {number} index   节点对象在nodes集合中的下标值
+ */
 function animation(node,index) {
   if (Slider_datas[index].animation_way === 1) {
     status[index].animation_statu = setInterval(() => {
