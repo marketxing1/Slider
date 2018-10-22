@@ -63,9 +63,9 @@ let Slider_default_data = {  //默认配置项
 
 let Slider_data = { //单个Slider属性配置
   1:{"index":true,"animation_time": 1000,"animation_timer": 1000,},
-  2:{"index":true,"animation_timer": 2000,},
+  2:{"index":false,"arrows":false},
   3:{"index":true},
-  4:{"arrows":false},
+  4:{"arrows":false,"animation_time": 1000,"animation_timer": 1000,},
   5:{"index":true},
   6:{"arrows":true},
   7:{"index":true}         
